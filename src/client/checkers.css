@@ -1,0 +1,67 @@
+
+#root {
+    height: 100%;
+    width: 900px;
+    margin: 0 auto;
+}
+.buttons {
+	display: block;
+	padding: 20px;
+	position: center;
+	float: top;
+}
+.start{
+	width: 120px;
+	height: 60px;
+	border: 4px solid black;
+	cursor: pointer;
+}
+#board {
+    height: 480px;
+    width: 480px;
+    margin: 0 auto;
+}
+
+.square {
+	width: 60px;
+    height: 60px;
+    border: 2px solid black;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    cursor:pointer;
+    float:left;
+    line-height: 140px;
+    text-align: center;
+    font-family: "Arial Narrow";
+    font-weight: bold;
+    font-size: 30px;
+}
+.red-piece {
+    background-color: red;
+}
+.blue-piece {
+    background-color: blue;
+}
+.piece {
+    width: 80%;
+    height: 80%;
+    border-radius: 24px;
+    margin: 10%;
+}
+.possible {
+    background-color: yellow;
+    width: 80%;
+    height: 80%;
+    border-radius: 24px;
+    margin: 10%;
+}
+.king {
+    border: 7px solid black;
+    width: 60%;
+    height: 60%;
+    border-radius: 24px;
+    margin: 10%;
+}
+
+
