@@ -9,7 +9,7 @@
     "builddev": "webpack-dev-server --content-base /src/client --hot"
   },
   "author": "William Galebach",
-  "license": "ISC",
+  "license": "",
   "dependencies": {
     "express": "^4.12.3",
     "nodemon": "^1.11.0",

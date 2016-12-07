@@ -21470,10 +21470,8 @@
 
 	    _this.state = {
 	      pieces: {
-	        // red: {0: 'n', 2: 'n', 4: 'n', 6: 'n', 9:'n', 11:'n', 13:'n', 15:'n', 16:'n', 18:'n', 20:'n', 22:'n'},
-	        // blue: {63:'n', 61:'n', 59:'n', 57:'n', 54:'n', 52:'n', 50:'n', 48:'n', 47:'n', 45:'n', 43:'n', 41:'n'},
-	        red: { 0: 'n' },
-	        blue: { 63: 'n' },
+	        red: { 0: 'n', 2: 'n', 4: 'n', 6: 'n', 9: 'n', 11: 'n', 13: 'n', 15: 'n', 16: 'n', 18: 'n', 20: 'n', 22: 'n' },
+	        blue: { 63: 'n', 61: 'n', 59: 'n', 57: 'n', 54: 'n', 52: 'n', 50: 'n', 48: 'n', 47: 'n', 45: 'n', 43: 'n', 41: 'n' },
 	        possible: { something: 'something' },
 	        selected: -1
 	      },
@@ -21487,6 +21485,7 @@
 	    _this.possibleRed = _this.possibleRed.bind(_this);
 	    _this.possibleKing = _this.possibleKing.bind(_this);
 	    _this.checkWin = _this.checkWin.bind(_this);
+	    _this.checkJump = _this.checkJump.bind(_this);
 	    return _this;
 	  }
 
@@ -21500,12 +21499,17 @@
 	          turn = _state.turn,
 	          notTurn = _state.notTurn;
 
-
+	      var curPiece = square;
+	      var jumped = false;
 	      if (this.state.pieces.blue[target]) {
 	        delete this.state.pieces.blue[target];
+	        console.log('deleted a piece');
+	        jumped = true;
 	      }
 	      if (this.state.pieces.red[target]) {
 	        delete this.state.pieces.red[target];
+	        console.log('deleted a piece');
+	        jumped = true;
 	      }
 	      var typePiece = pieces[this.state.turn][this.state.selected];
 	      pieces[this.state.turn][this.state.selected] = undefined;
@@ -21516,7 +21520,7 @@
 	        pieces[this.state.turn][square] = square < 8 ? 'k' : typePiece;
 	      }
 	      //return to base case
-	      return pieces;
+	      return { pieces: pieces, curPiece: curPiece, jumped: jumped };
 	    }
 	  }, {
 	    key: 'possibleBlue',
@@ -21528,24 +21532,21 @@
 	      if (square % 8 === 0) {
 	        if (reds[square - 7] && !reds[square - 14] && square - 14 > 0 && !blues[square - 14] && (square - 7) % 8 !== 7 && (square - 7) % 8 !== 0) {
 	          posMoves[square - 14] = 'p';
-	        } else if (!blues[square - 7]) {
-	          posMoves[square - 7] = 'p';
-	        }
+	        } else if (!blues[square - 7]) posMoves[square - 7] = 'p';
 	      } else if (square % 8 === 7) {
 	        if (reds[square - 9] && !reds[square - 18] && square - 18 > 0 && !blues[square - 18] && (square - 9) % 8 !== 7 && (square - 9) % 8 !== 0) {
 	          posMoves[square - 18] = 'p';
-	        } else if (!blues[square - 9]) {
-	          posMoves[square - 9] = 'p';
-	        }
+	        } else if (!blues[square - 9]) posMoves[square - 9] = 'p';
 	      } else {
 	        if (reds[square - 7] && !reds[square - 14] && square - 14 > 0 && !blues[square - 14] && (square - 7) % 8 !== 7 && (square - 7) % 8 !== 0) {
 	          posMoves[square - 14] = 'p';
-	        }
-	        if (reds[square - 9] && !reds[square - 18] && square - 18 > 0 && !blues[square - 18] && (square - 9) % 8 !== 7 && (square - 9) % 8 !== 0) {
-	          posMoves[square - 18] = 'p';
 	        } else {
-	          if (!blues[square - 7] && !reds[square - 7]) posMoves[square - 7] = 'p';
-	          if (!blues[square - 9] && !reds[square - 9]) posMoves[square - 9] = 'p';
+	          if (reds[square - 9] && !reds[square - 18] && square - 18 > 0 && !blues[square - 18] && (square - 9) % 8 !== 7 && (square - 9) % 8 !== 0) {
+	            posMoves[square - 18] = 'p';
+	          } else {
+	            if (!blues[square - 7] && !reds[square - 7]) posMoves[square - 7] = 'p';
+	            if (!blues[square - 9] && !reds[square - 9]) posMoves[square - 9] = 'p';
+	          }
 	        }
 	      }
 	      curState.pieces.possible = posMoves;
@@ -21562,28 +21563,25 @@
 	      if (square % 8 === 0) {
 	        if (blues[square + 9] && !blues[square + 18] && square + 18 < 64 && !reds[square + 18] && (square + 9) % 8 !== 7 && (square + 9) % 8 !== 0) {
 	          posMoves[square + 18] = 'p';
-	          curState.target = square + 9;
 	        } else if (!reds[square + 9]) {
 	          posMoves[square + 9] = 'p';
 	        }
 	      } else if (square % 8 === 7) {
 	        if (blues[square + 7] && !blues[square + 14] && square + 14 < 64 && !reds[square + 14] && (square + 7) % 8 !== 7 && (square + 7) % 8 !== 0) {
 	          posMoves[square + 14] = 'p';
-	          curState.target = square + 7;
 	        } else if (!reds[square + 7]) {
 	          posMoves[square + 7] = 'p';
 	        }
 	      } else {
 	        if (blues[square + 9] && !blues[square + 18] && square + 18 < 64 && !reds[square + 18] && (square + 9) % 8 !== 7 && (square + 9) % 8 !== 0) {
 	          posMoves[square + 18] = 'p';
-	          curState.target = square + 9;
-	        }
-	        if (blues[square + 7] && !blues[square + 14] && square + 14 < 64 && !reds[square + 14] && (square + 7) % 8 !== 7 && (square + 7) % 8 !== 0) {
-	          posMoves[square + 14] = 'p';
-	          curState.target = square + 7;
 	        } else {
-	          if (!reds[square + 9] && !blues[square + 9]) posMoves[square + 9] = 'p';
-	          if (!reds[square + 7] && !blues[square + 7]) posMoves[square + 7] = 'p';
+	          if (blues[square + 7] && !blues[square + 14] && square + 14 < 64 && !reds[square + 14] && (square + 7) % 8 !== 7 && (square + 7) % 8 !== 0) {
+	            posMoves[square + 14] = 'p';
+	          } else {
+	            if (!reds[square + 9] && !blues[square + 9]) posMoves[square + 9] = 'p';
+	            if (!reds[square + 7] && !blues[square + 7]) posMoves[square + 7] = 'p';
+	          }
 	        }
 	      }
 	      curState.pieces.possible = posMoves;
@@ -21654,11 +21652,93 @@
 	      return curState;
 	    }
 	  }, {
+	    key: 'checkJump',
+	    value: function checkJump(square, pieces) {
+	      var posMoves = {};
+	      var turn = this.state.turn;
+	      var blues = pieces.blue;
+	      var reds = pieces.red;
+	      var curState = this.state;
+	      var friends = this.state.turn === 'blue' ? this.state.pieces.blue : this.state.pieces.red;
+	      var enemies = this.state.turn === 'red' ? this.state.pieces.blue : this.state.pieces.red;
+	      //blue piece
+	      if (pieces[turn][square] === 'n' && turn === 'blue') {
+	        if (square % 8 === 0) {
+	          if (reds[square - 7] && !reds[square - 14] && square - 14 > 0 && !blues[square - 14] && (square - 7) % 8 !== 7 && (square - 7) % 8 !== 0) {
+	            posMoves[square - 14] = 'p';
+	          }
+	        } else if (square % 8 === 7) {
+	          if (reds[square - 9] && !reds[square - 18] && square - 18 > 0 && !blues[square - 18] && (square - 9) % 8 !== 7 && (square - 9) % 8 !== 0) {
+	            posMoves[square - 18] = 'p';
+	          }
+	        } else {
+	          if (reds[square - 7] && !reds[square - 14] && square - 14 > 0 && !blues[square - 14] && (square - 7) % 8 !== 7 && (square - 7) % 8 !== 0) {
+	            posMoves[square - 14] = 'p';
+	          } else {
+	            if (reds[square - 9] && !reds[square - 18] && square - 18 > 0 && !blues[square - 18] && (square - 9) % 8 !== 7 && (square - 9) % 8 !== 0) {
+	              posMoves[square - 18] = 'p';
+	            }
+	          }
+	        }
+	        //red piece
+	      } else if (pieces[turn][square] === 'n' && turn === 'red') {
+	        if (square % 8 === 0) {
+	          if (blues[square + 9] && !blues[square + 18] && square + 18 < 64 && !reds[square + 18] && (square + 9) % 8 !== 7 && (square + 9) % 8 !== 0) {
+	            posMoves[square + 18] = 'p';
+	          }
+	        } else if (square % 8 === 7) {
+	          if (blues[square + 7] && !blues[square + 14] && square + 14 < 64 && !reds[square + 14] && (square + 7) % 8 !== 7 && (square + 7) % 8 !== 0) {
+	            posMoves[square + 14] = 'p';
+	          }
+	        } else {
+	          if (blues[square + 9] && !blues[square + 18] && square + 18 < 64 && !reds[square + 18] && (square + 9) % 8 !== 7 && (square + 9) % 8 !== 0) {
+	            posMoves[square + 18] = 'p';
+	          } else {
+	            if (blues[square + 7] && !blues[square + 14] && square + 14 < 64 && !reds[square + 14] && (square + 7) % 8 !== 7 && (square + 7) % 8 !== 0) {
+	              posMoves[square + 14] = 'p';
+	            }
+	          }
+	        }
+	        //king
+	      } else {
+	        if (square % 8 === 0) {
+	          if (enemies[square + 9] && !enemies[square + 18] && square + 18 < 64 && !friends[square + 18] && (square + 9) % 8 !== 7 && (square + 9) % 8 !== 0) posMoves[square + 18] = 'p';
+	          if (enemies[square - 7] && !enemies[square - 14] && square - 14 > 0 && !friends[square - 14] && (square - 7) % 8 !== 7 && (square - 7) % 8 !== 0) posMoves[square - 14] = 'p';
+	        } else if (square % 8 === 7) {
+	          if (enemies[square + 7] && !enemies[square + 14] && square + 14 < 64 && !friends[square + 14] && (square + 7) % 8 !== 7 && (square + 7) % 8 !== 0) posMoves[square + 14] = 'p';
+	          if (enemies[square - 9] && !enemies[square - 18] && square - 18 > 0 && !friends[square - 18] && (square - 9) % 8 !== 7 && (square - 9) % 8 !== 0) posMoves[square - 18] = 'p';
+	        } else {
+	          if (enemies[square + 9] && !enemies[square + 18] && square + 18 < 64 && !friends[square + 18] && (square + 9) % 8 !== 7 && (square + 9) % 8 !== 0) posMoves[square + 18] = 'p';
+	          if (enemies[square - 9] && !enemies[square - 18] && square - 18 > 0 && !friends[square - 18] && (square - 9) % 8 !== 7 && (square - 9) % 8 !== 0) posMoves[square - 18] = 'p';
+	          if (enemies[square + 7] && !enemies[square + 14] && square + 14 < 64 && !friends[square + 14] && (square + 7) % 8 !== 7 && (square + 7) % 8 !== 0) posMoves[square + 14] = 'p';
+	          if (enemies[square - 7] && !enemies[square - 14] && square - 14 > 0 && !friends[square - 14] && (square - 7) % 8 !== 7 && (square - 7) % 8 !== 0) posMoves[square - 14] = 'p';
+	        }
+	      }
+	      //check if there are possible moves, if there are, figure out a way to take those moves
+	      console.log('possible second jumps', posMoves);
+	      if (Object.keys(posMoves).length < 1) {
+	        return;
+	      } else {
+	        console.log('hello');
+	        curState.pieces = pieces;
+	        curState.pieces.possible = posMoves;
+	        curState.selected = square;
+	        return curState;
+	      }
+	    }
+	  }, {
 	    key: 'handleClick',
 	    value: function handleClick(square) {
 	      if (this.state.selected !== -1 && this.state.pieces.possible[square] === 'p') {
-	        var pieces = this.movePiece(square);
-	        //this line needs to change to enable multiple jumps
+	        var moveResult = this.movePiece(square);
+	        var pieces = moveResult.pieces;
+	        var newPiece = moveResult.curPiece;
+	        //checks if an additional jump can performed, nothing happens if not
+	        if (this.checkJump(square, pieces) && moveResult.jumped) {
+	          this.setState(this.checkJump(square, pieces));
+	          return;
+	        }
+
 	        pieces.possible = {};
 	        var turn = this.state.turn === 'blue' ? 'red' : 'blue';
 	        var notTurn = this.state.notTurn === 'blue' ? 'red' : 'blue';
